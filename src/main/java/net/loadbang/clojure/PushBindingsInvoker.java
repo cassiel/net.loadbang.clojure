@@ -26,7 +26,7 @@ abstract public class PushBindingsInvoker<T> {
 	
 	static final Var IN_NS = RT.var("clojure.core", "in-ns");
 	static final Namespace MAX_NS = Namespace.findOrCreate(Symbol.intern("max"));
-	static final Var MAX_OBJECT = Var.intern(MAX_NS, Symbol.intern("maxObject"), null);
+	static final Var MAX_OBJECT = Var.intern(MAX_NS, Symbol.intern("maxObject"), null).setDynamic();
 	static final Symbol CLOJURE_CORE = Symbol.intern("clojure.core");
 	static final Symbol USER = Symbol.intern("user");
 	
