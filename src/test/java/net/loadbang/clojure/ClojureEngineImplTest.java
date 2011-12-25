@@ -3,6 +3,8 @@
 
 package net.loadbang.clojure;
 
+import java.util.List;
+
 import net.loadbang.scripting.MaxObjectProxy;
 
 import org.jmock.Expectations;
@@ -27,15 +29,15 @@ public class ClojureEngineImplTest {
 			atLeast(1).of(nsOwner).getNS();
 			will(returnValue("aaa"));
 			
-			exactly(1).of(proxy).outlet(1, "Hello");
-			will(returnValue(true));
+			exactly(1).of(proxy).outlet(1, "Hello-1");
+			will(returnValue(true));		//	Actual Clojure outlet call.
 
 			exactly(1).of(proxy).outlet(0, true);
-			will(returnValue(true));
+			will(returnValue(true));		//	Done to report success.
 		}});
 		
 		ClojureEngineImpl engine = new ClojureEngineImpl(proxy, nsOwner);
-		engine.eval("(.outlet max/maxObject 1 \"Hello\")");
+		engine.eval("(.outlet max/maxObject 1 \"Hello-1\")");
 	}
 	
 	@Test
@@ -46,10 +48,17 @@ public class ClojureEngineImplTest {
 		itsContext.checking(new Expectations() {{
 			atLeast(1).of(nsOwner).getNS();
 			will(returnValue("aaa"));
+			
+			exactly(1).of(proxy).outlet(with(any(Integer.class)),
+									    with(any(List.class)));
+			will(returnValue(true));
+
+			exactly(1).of(proxy).outlet(0, true);
+			will(returnValue(true));
 		}});
 		
 		ClojureEngineImpl engine = new ClojureEngineImpl(proxy, nsOwner);
-		engine.eval("(.outlet max/maxObject 1 \"A\" \"B\" \"C\")");
+		engine.eval("(. max/maxObject outlet 1 [\"A\" \"B\" \"C\"])");
 	}
 	
 	@Test
@@ -67,7 +76,7 @@ public class ClojureEngineImplTest {
 		
 		ClojureEngineImpl engine = new ClojureEngineImpl(proxy, nsOwner);
 		
-		engine.invoke("clojure.core/println", null, new Atom [] { Atom.newAtom("Hello") });
+		engine.invoke("clojure.core/println", null, new Atom [] { Atom.newAtom("Hello-2") });
 	}
 
 	@Test
@@ -78,10 +87,13 @@ public class ClojureEngineImplTest {
 		itsContext.checking(new Expectations() {{
 			atLeast(1).of(nsOwner).getNS();
 			will(returnValue("aaa"));
+
+			exactly(1).of(proxy).outlet(0, null);
+			will(returnValue(true));
 		}});
 		
 		ClojureEngineImpl engine = new ClojureEngineImpl(proxy, nsOwner);
 		
-		engine.invoke("println", null, new Atom [] { Atom.newAtom("Hello") });
+		engine.invoke("clojure.core/println", null, new Atom [] { Atom.newAtom("Hello-3") });
 	}
 }
