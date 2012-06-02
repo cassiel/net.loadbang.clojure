@@ -60,7 +60,7 @@ public class Clojure extends ScriptEngineBase implements NSOwner {
 	 */
 
 	public String getNS() {
-		if (itsNamespaceName.equals(USER)) {
+		if (itsNamespaceName.equals(USER)) {	//	Why am I doing this?
 			return USER;
 		} else {
 			return itsNamespaceName;
