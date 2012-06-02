@@ -252,14 +252,20 @@ public class ClojureEngineImpl extends EngineImpl {
 
 	/** Invoke a function followed by a set of arguments (Atoms).
 	 	We frig this slightly to allow a special form: if the "fn" begins
-	 	with "(" we assume the entire input is a Clojure form and do
-	 	an eval(), ignoring the inlet number.
+	 	with "(", "@" or "[" we assume the entire input is a Clojure form and do
+	 	an eval(), ignoring the inlet number. (This will be slow, so
+	 	should be avoided: try to drop into the applyTo() instead.)
 	 	
 	 	<P>While "run" and "script" temporarily extend the classpath
 	 	in order to load libraries (using the place-holder and the location
 	 	of the script respectively), we don't do that here, partly due to
 	 	a possibly misconceived notion of performance: we want one-liners
 	 	to be fast (especially the Max-style unbracketted ones).
+	 	
+	 	TODO: for function names we should pick out ":xxxx" (but only
+	 	if with args: I don't know what we should do with an isolated
+	 	":xxxx"), and possibly "#'name". For arguments we should
+	 	pick out and convert these as well.
 
 	 	@see net.loadbang.scripting.EngineImpl#invoke(java.lang.String, java.lang.Integer, com.cycling74.max.Atom[])
 	 */
