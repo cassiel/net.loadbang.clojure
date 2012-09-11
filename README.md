@@ -2,8 +2,11 @@
 
 This package is an implementation of Clojure for [MaxMSP][max].
 
-Tutorials, exercises and prebuilt JAR files are available in a
-[companion project][clojure-expo]. This `net.loadbang.clojure`
+Tutorials and exercises are available in a
+[companion project][clojure-expo]. Up-to-date JAR files are
+in the [distribution][dist].
+
+This `net.loadbang.clojure`
 project provides sources and a Maven build script. (To do the
 Maven build, clone and build [net.loadbang.scripting][scripting]
 first, since our libraries are not yet in a central repository.)
@@ -21,6 +24,7 @@ Distributed under the [GNU General Public License][gpl].
 Copyright (C) 2012 Nick Rothwell.
 
 [max]: http://cycling74.com/products/max/
+[dist]: https://github.com/downloads/cassiel/net.loadbang.clojure/distribution.zip
 [clojure-expo]: https://github.com/cassiel/maxmsp-clojure-expo74
 [scripting]: https://github.com/cassiel/net.loadbang.scripting
 [lib]: https://github.com/cassiel/net.loadbang.lib
