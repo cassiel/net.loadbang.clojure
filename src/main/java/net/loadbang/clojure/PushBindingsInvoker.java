@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 
 import net.loadbang.scripting.MaxObjectProxy;
+import net.loadbang.scripting.util.Manifest;
 import clojure.lang.LineNumberingPushbackReader;
 import clojure.lang.Namespace;
 import clojure.lang.RT;
@@ -26,13 +27,20 @@ abstract public class PushBindingsInvoker<T> {
 	
 	static final Var IN_NS = RT.var("clojure.core", "in-ns");
 	static final Namespace MAX_NS = Namespace.findOrCreate(Symbol.intern("max"));
-	static final Var MAX_OBJECT = Var.intern(MAX_NS, Symbol.intern("maxObject"), null).setDynamic();
+	
+	static final Var MAX_OBJECT =
+		Var.intern(MAX_NS, Symbol.intern("maxObject"), null).setDynamic();
+	
+	static final Var MAX_ENGINE =
+		Var.intern(MAX_NS, Symbol.intern(Manifest.Vars.ENGINE), null).setDynamic();
+
 	static final Symbol CLOJURE_CORE = Symbol.intern("clojure.core");
 	static final Symbol USER = Symbol.intern("user");
 	
 	private Reader itsReader;
 	private MaxObjectProxy itsProxy;
 	private NSOwner itsNSOwner;
+	private ClojureEngineImpl itsEngine;
 	private static NamespaceTracker theNamespaceTracker = new NamespaceTracker();
 
 	static {
@@ -40,10 +48,12 @@ abstract public class PushBindingsInvoker<T> {
 			// USER has clojure.core referred already, so mark it as done.
 	}
 
-	public PushBindingsInvoker(MaxObjectProxy proxy,
+	public PushBindingsInvoker(ClojureEngineImpl engine,
+							   MaxObjectProxy proxy,
 							   NSOwner nsOwner,
 							   Reader reader
 							  ) {
+		itsEngine = engine;
 		itsProxy = proxy;
 		itsNSOwner = nsOwner;
 		itsReader = reader;
@@ -51,11 +61,12 @@ abstract public class PushBindingsInvoker<T> {
 
 	public T doit() throws Exception {
 		Var.pushThreadBindings(
-			RT.map(MAX_OBJECT, itsProxy,
-					RT.CURRENT_NS, RT.CURRENT_NS.deref(),
-					RT.IN, new LineNumberingPushbackReader(itsReader),
-					RT.OUT, new OutputStreamWriter(System.out),
-					RT.ERR, new OutputStreamWriter(System.err))
+			RT.map(MAX_ENGINE, itsEngine,
+				   MAX_OBJECT, itsProxy,
+				   RT.CURRENT_NS, RT.CURRENT_NS.deref(),
+				   RT.IN, new LineNumberingPushbackReader(itsReader),
+				   RT.OUT, new OutputStreamWriter(System.out),
+				   RT.ERR, new OutputStreamWriter(System.err))
 		);
 
 		Symbol sym = Symbol.intern(itsNSOwner.getNS());

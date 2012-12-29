@@ -3,8 +3,10 @@
 
 package net.loadbang.clojure;
 
+import java.util.Collection;
 import java.util.List;
 
+import net.loadbang.scripting.Engine;
 import net.loadbang.scripting.MaxObjectProxy;
 
 import org.jmock.Expectations;
@@ -95,5 +97,42 @@ public class ClojureEngineImplTest {
 		ClojureEngineImpl engine = new ClojureEngineImpl(proxy, nsOwner);
 		
 		engine.invoke("clojure.core/println", null, new Atom [] { Atom.newAtom("Hello-3") });
+	}
+	
+	@Test
+	public void callsCleanupCallback() {
+		final NSOwner nsOwner = itsContext.mock(NSOwner.class);
+		final MaxObjectProxy proxy = itsContext.mock(MaxObjectProxy.class);
+
+		itsContext.checking(new Expectations() {{
+			atLeast(1).of(nsOwner).getNS();
+			will(returnValue("aaa"));
+
+			//	I can't be bothered trying an equality check on the second arg, so:
+			one(proxy).outlet(with(any(Integer.class)), with(any(Collection.class)));
+		}});
+
+		Engine engine = new ClojureEngineImpl(proxy, nsOwner);
+		
+		engine.exec("(.addCleanup max/engine (fn [] (.outlet max/maxObject 0 [999])))");
+		engine.exec("(.clear max/engine)");
+	}
+	
+	@Test
+	public void survivesCleanupWithNonFunction() {
+		final NSOwner nsOwner = itsContext.mock(NSOwner.class);
+		final MaxObjectProxy proxy = itsContext.mock(MaxObjectProxy.class);
+
+		itsContext.checking(new Expectations() {{
+			atLeast(1).of(nsOwner).getNS();
+			will(returnValue("aaa"));
+
+			one(proxy).error("addCleanup: not a function");
+		}});
+
+		Engine engine = new ClojureEngineImpl(proxy, nsOwner);
+		
+		engine.exec("(.addCleanup max/engine 1234)");
+		engine.exec("(.clear max/engine)");
 	}
 }

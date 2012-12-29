@@ -7,11 +7,13 @@ import java.io.File;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.Stack;
 
 import net.loadbang.scripting.EngineImpl;
 import net.loadbang.scripting.MaxObjectProxy;
 import net.loadbang.scripting.util.Converters;
 import clojure.lang.Compiler;
+import clojure.lang.IFn;
 import clojure.lang.Namespace;
 import clojure.lang.RT;
 import clojure.lang.Symbol;
@@ -27,6 +29,9 @@ public class ClojureEngineImpl extends EngineImpl {
 	
 	private ClojureConverters itsConverters;
 	
+	/**	A stack of callback functions to call on disposal or "clear". */
+	private Stack<IFn> itsCleanupCallbacks00 = null;
+
 	/**	Create an instance of a Clojure engine.
 
 		@param proxy a proxy for the owning {@link MaxObject}.
@@ -36,17 +41,18 @@ public class ClojureEngineImpl extends EngineImpl {
 		super(proxy);
 		itsNSOwner = nsOwner;
 		itsConverters = new ClojureConverters();
+		clear();
 	}
 
 	/**	Clear the environment. Since we only have one Clojure
 	 	interpreter it's not clear that this means anything,
-	 	but we might want to clear any on-delete functions.
+	 	but we want to clear any on-delete functions.
 
 	 	@see net.loadbang.scripting.Engine#clear()
 	 */
 	
 	public void clear() {
-		// TODO Auto-generated method stub	
+		unwindCallbacks();
 	}
 	
 	/**	Run a script file in a given directory. The directory is
@@ -65,13 +71,15 @@ public class ClojureEngineImpl extends EngineImpl {
 	 */
 
 	private void run1(final File directory, final String filename) {
+		final ClojureEngineImpl x = this;
+
 		try {
 			//	Add directory to classpath and go:
 			new ClassLoaderInvoker<Object>() {
 				private void bindAndGo() throws Exception {
 					try {
 						//	Push bindings and go:
-						new PushBindingsInvoker<Object>(getProxy(), itsNSOwner,
+						new PushBindingsInvoker<Object>(x, getProxy(), itsNSOwner,
 														new StringReader("")
 								  					   ) {
 							@Override
@@ -148,7 +156,15 @@ public class ClojureEngineImpl extends EngineImpl {
 	 */
 
 	public void addCleanup(Object obj) {
-		// TODO Auto-generated method stub
+		if (obj instanceof IFn) {
+			if (itsCleanupCallbacks00 == null) {
+				itsCleanupCallbacks00 = new Stack<IFn>();
+			}
+
+			itsCleanupCallbacks00.push((IFn) obj);
+		} else {
+			getProxy().error("addCleanup: not a function");
+		}
 	}
 
 	/**	Data converters. Generally universal, but (probably) with
@@ -190,7 +206,7 @@ public class ClojureEngineImpl extends EngineImpl {
 	 */
 
 	private Object evaluate(String statement) throws Exception {
-		return new PushBindingsInvoker<Object>(getProxy(), itsNSOwner,
+		return new PushBindingsInvoker<Object>(this, getProxy(), itsNSOwner,
 											   new StringReader(statement)
 											  ) {
 			@Override
@@ -284,7 +300,7 @@ public class ClojureEngineImpl extends EngineImpl {
 				final List<Object> argObjects = itsConverters.atomsToObjects(args, 0);
 					
 				Object result =
-					new PushBindingsInvoker<Object>(getProxy(), itsNSOwner,
+					new PushBindingsInvoker<Object>(this, getProxy(), itsNSOwner,
 												    new StringReader("")
 												   ) {
 					@Override
@@ -304,6 +320,22 @@ public class ClojureEngineImpl extends EngineImpl {
 
 	@Override
 	public void unwindCallbacks() {
-		// TODO Auto-generated method stub
+		if (itsCleanupCallbacks00 != null) {
+			while (!itsCleanupCallbacks00.empty()) {
+				try {
+					new PushBindingsInvoker<Object>(this, getProxy(), itsNSOwner,
+													new StringReader("")
+												   ) {
+						@Override
+						public Object invoke() throws Exception {
+							itsCleanupCallbacks00.pop().call();
+							return null;
+						}
+					}.doit();
+				} catch (Exception exn) {
+					getProxy().error(exn.toString());
+				}
+			}
+		}
 	}
 }
