@@ -24,7 +24,7 @@ Distributed under the [GNU General Public License][gpl].
 Copyright (C) 2012 Nick Rothwell.
 
 [max]: http://cycling74.com/products/max/
-[dist]: https://github.com/downloads/cassiel/net.loadbang.clojure/distribution.zip
+[dist]: https://github.com/cassiel/net.loadbang.clojure/archive/master.zip
 [clojure-expo]: https://github.com/cassiel/maxmsp-clojure-expo74
 [scripting]: https://github.com/cassiel/net.loadbang.scripting
 [lib]: https://github.com/cassiel/net.loadbang.lib
