@@ -51,6 +51,7 @@ public class ClojureEngineImpl extends EngineImpl {
 	 	@see net.loadbang.scripting.Engine#clear()
 	 */
 	
+	@Override
 	public void clear() {
 		unwindCallbacks();
 	}
@@ -127,6 +128,7 @@ public class ClojureEngineImpl extends EngineImpl {
 	 	@see net.loadbang.scripting.Engine#runScript(java.lang.String, java.lang.String)
 	 */
 
+	@Override
 	public void runScript(final String directory, final String filename) {
 		try {
 			run1(new File(directory), filename);
@@ -142,6 +144,7 @@ public class ClojureEngineImpl extends EngineImpl {
 	 	@see net.loadbang.scripting.Engine#runUsingPlaceHolder(java.lang.String)
 	 */
 
+	@Override
 	public void runUsingPlaceHolder(String name) {
 		if (itsPlaceHolderDirectory00 == null) {
 			getProxy().error("engine not loaded: place-holder problem?");
@@ -155,6 +158,7 @@ public class ClojureEngineImpl extends EngineImpl {
 	 	@see net.loadbang.scripting.Engine#addCleanup(java.lang.Object)
 	 */
 
+	@Override
 	public void addCleanup(Object obj) {
 		if (obj instanceof IFn) {
 			if (itsCleanupCallbacks00 == null) {

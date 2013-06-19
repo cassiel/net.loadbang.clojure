@@ -59,6 +59,7 @@ public class Clojure extends ScriptEngineBase implements NSOwner {
 		@return the name of the namespace
 	 */
 
+	@Override
 	public String getNS() {
 		if (itsNamespaceName.equals(USER)) {	//	Why am I doing this?
 			return USER;
