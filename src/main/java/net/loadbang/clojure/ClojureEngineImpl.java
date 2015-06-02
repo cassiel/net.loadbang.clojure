@@ -34,7 +34,8 @@ public class ClojureEngineImpl extends EngineImpl {
 
 	/**	Create an instance of a Clojure engine.
 
-		@param proxy a proxy for the owning {@link MaxObject}.
+		@param proxy a proxy for the owning {@link MaxObject}
+		@param nsOwner a shim for fetching the current MaxObject's Clojure namespace
 	 */
 
 	public ClojureEngineImpl(MaxObjectProxy proxy, NSOwner nsOwner) {

@@ -3,6 +3,7 @@
 ## 1.3.1, 2015-05-31:
 
 * Bumped dependencies: `net.loadbang.scripting 1.1.2`, `clojure 1.6.0`.
+* Fixed up some broken JavaDoc links.
 
 ## 1.3.0, 2012-12-29:
 

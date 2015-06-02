@@ -14,8 +14,9 @@ import java.net.URLClassLoader;
  	<P>This machinery is dynamic: a single thread might pass through
  	multiple MXJ objects and each one is responsible for setting its
  	"search path" for Clojure code if it is asked to do anything
- 	related to that directory (such as {@link Engine#runScript} or
- 	{@link Engine#runUsingPlaceHolder}).
+ 	related to that directory (such as
+ 	{@link net.loadbang.scripting.Engine#runScript} or
+ 	{@link net.loadbang.scripting.Engine#runUsingPlaceHolder}).
  	
  	<P>Actually, the behaviour will be slightly surprising: we push
  	successive root directories if we call through MXJ instances,
